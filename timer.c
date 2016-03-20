@@ -157,10 +157,15 @@ void wd_clock()
 //
 #define WDT_Hz 512
 unsigned wdt_cnt;
+unsigned startup_cnt = 256;
 
 #pragma vector=WDT_VECTOR
 __interrupt void watchdog_timer(void)
 {
+	if (startup_cnt) {
+		--startup_cnt;
+		return;
+	}
 	wd_clock();
 	if (++wdt_cnt >= WDT_Hz) {
 		wdt_cnt = 0;
@@ -218,15 +223,11 @@ void main( void )
 
 	IE1 |= WDTIE;			// Enable WDT interrupt
 
-	while (BCSCTL3 & LFXT1OF) {
-		__no_operation();
-	}
-
 	__enable_interrupt();	// Enable interrupts.
 
 	if (chk_show_vcc()) {
 		// Power is too low
-		__delay_cycles(1000000);
+		__delay_cycles(2000000);
 		// All outputs to 0
 		P1OUT = 0;
 		P2OUT = 0;
