@@ -41,6 +41,7 @@ unsigned char seg_map[] = {
 };
 
 #define COLS 4
+#define COL_BITS ((1<<COLS)-1)
 
 int led_col = COLS;
 unsigned char led_seg[COLS];
@@ -59,7 +60,7 @@ void led_clock(void)
 	if (bit & led_dp) {
 		segs |= BIT1;
 	}
-	P2OUT &= ~((1<<COLS)-1);
+	P2OUT &= ~COL_BITS;
 	P1OUT = ~segs;
 	P2OUT |= bit;
 }
@@ -213,6 +214,8 @@ void main( void )
 	BCSCTL3 |= XCAP0 | XCAP1; // 12pF load cap
 
 	// Configure ports as output
+	P1OUT = 0;
+	P2OUT = 0;
 	P1DIR = 0xff;
 	P2DIR = 0xff;
 
