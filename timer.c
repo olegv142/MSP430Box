@@ -20,8 +20,8 @@
 #define SPACE 12
 
 // Buttons connected to P2
-#define BT_START BIT5
-#define BT_RESET BIT4
+#define BT_START BIT4
+#define BT_RESET BIT5
 
 // Mapping from chars to LED display segments
 unsigned char seg_map[] = {
@@ -103,9 +103,15 @@ int sec_cnt;
 int min_cnt;
 int running;
 
-void clock_update(void)
+static inline void clock_show(void)
 {
 	char buff[8];
+	sprintf(buff, "%02d%02d", min_cnt, sec_cnt);
+	led_show_dp(buff, 4);
+}
+
+void clock_update(void)
+{
 	if (running)
 	{
 		++sec_cnt;
@@ -114,8 +120,7 @@ void clock_update(void)
 			sec_cnt = 0;
 		}
 	}
-	sprintf(buff, "%02d%02d", min_cnt, sec_cnt);
-	led_show_dp(buff, 4);
+	clock_show();
 }
 
 void sec_clock(void)
@@ -147,7 +152,7 @@ void wd_clock()
 	if (reset_pressed) {
 		sec_cnt = 0;
 		min_cnt = 0;
-		running = 0;
+		clock_show();
 	}
 	led_clock();
 }
